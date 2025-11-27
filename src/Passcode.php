@@ -165,9 +165,9 @@ class Passcode extends TTLockAbstract
 	 * @param int    $date
 	 * @return array
 	 * @throws \GuzzleHttp\Exception\GuzzleException | \Exception
-	 * @author 韩文博
+	 * @author Mann Man
 	 */
-	public function add( int $lockId, string $keyboardPwd, int $startDate, int $endDate, int $addType, int $date ) : array
+	public function add( int $lockId, string $keyboardPwd, string $keyboardPwdName, int $startDate, int $endDate ) : array
 	{
 		$response = $this->client->request( 'POST', '/v3/keyboardPwd/add', [
 			'form_params' => [
@@ -175,14 +175,20 @@ class Passcode extends TTLockAbstract
 				'accessToken' => $this->accessToken,
 				'lockId'      => $lockId,
 				'keyboardPwd' => $keyboardPwd,
+				'keyboardPwdName' => $keyboardPwdName,
 				'startDate'   => $startDate,
 				'endDate'     => $endDate,
-				'addType'     => $addType,
-				'date'        => $date,
+				'addType'     => 2,
+				'date'        => number_format(round(microtime(true) * 1000),0,'.',''),
 			],
 		] );
 		$body     = json_decode( $response->getBody()->getContents(), true );
-		if( $response->getStatusCode() === 200 && isset( $body['errcode'] )&& $body['errcode']==0){
+		if( $response->getStatusCode() === 200){
+			if(isset( $body['errcode'] )){
+				return ($body['errcode']==0)?(array)$body:throw new \Exception( "errcode {$body['errcode']} errmsg {$body['errmsg']} errmsg : {$body['errmsg']}" );
+			} else if(isset( $body['errcode'] )){
+				throw new \Exception( "errcode {$body['errcode']} errmsg {$body['errmsg']} errmsg : {$body['errmsg']}" );
+			}
 			return (array)$body;
 		} else{
 			throw new \Exception( "errcode {$body['errcode']} errmsg {$body['errmsg']} errmsg : {$body['errmsg']}" );
