@@ -65,17 +65,18 @@ class ICCard extends TTLockAbstract
 	 */
 	public function delete( int $lockId, int $pageNo = 1, int $pageSize = 20) : array
 	{
-		$response = $this->client->request( 'POST', '/v3/identityCard/list', [
+		$response = $this->client->request( 'POST', '/v3/identityCard/delete', [
 			'form_params' => [
 				'clientId'    => $this->clientId,
 				'accessToken' => $this->accessToken,
-				'pageNo'      => $pageNo,
-				'pageSize'    => $pageSize,
+				'lockId'      => $lockId,
+				'cardId'      => $cardId,
+				'deleteType'  => 2,
 				'date'        => number_format(round(microtime(true) * 1000),0,'.','')
 			],
 		] );
 		$body     = json_decode( $response->getBody()->getContents(), true );
-		if( $response->getStatusCode() === 200 && !isset( $body['errcode'] ) ){
+		if( $response->getStatusCode() === 200 && isset( $body['errcode'] )&& $body['errcode']==0){
 			return (array)$body;
 		} else{
 			throw new \Exception( "errcode {$body['errcode']} errmsg {$body['errmsg']} errmsg : {$body['errmsg']}" );
