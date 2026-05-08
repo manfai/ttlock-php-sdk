@@ -113,9 +113,36 @@ class Lock extends TTLockAbstract
 		if( $response->getStatusCode() === 200 && !isset( $body['errcode'] ) ){
 			return (array)$body;
 		} else{
-			throw new \Exception( "errcode {$body['errcode']} errmsg {$body['errmsg']} errmsg : {$body['errmsg']}" );
+			 return (array)$body;
+		//	throw new \Exception( "errcode {$body['errcode']} errmsg {$body['errmsg']} errmsg : {$body['errmsg']}" );
 		}
 	}
+	 public function addGroup( string $groupName ) : array
+        {
+                $data = [
+                        'form_params' => [
+                                'clientId'    => $this->clientId,
+                                'accessToken' => $this->accessToken,
+                                'name'            => $groupName,
+                                'date'        => number_format(round(microtime(true) * 1000),0,'.','')
+                        ],
+                ];
+                $response = $this->client->request( 'POST', '/v3/group/add', $data);
+                $body     = json_decode( $response->getBody()->getContents(), true );
+                if( $response->getStatusCode() === 200 && !isset( $body['errcode'] ) ){
+                        return (array)$body;
+                } else{
+                        $response = $this->client->request('POST', '/v3/group/list', $data);
+                        $body  = json_decode( $response->getBody()->getContents(), true );
+                        if( $response->getStatusCode() === 200 && !isset( $body['errcode'] ) ){
+                                $index = array_search($groupName, array_column($body['list'], 'groupName'));
+                                return $body['list'][$index];
+                        } else{
+                                return (array)$body;
+                        }
+                        // throw new \Exception( "errcode {$body['errcode']} errmsg {$body['errmsg']} errmsg : {$body['errmsg']}" );
+                }
+        }
 	
 	/**
 	 * @param int $lockId
