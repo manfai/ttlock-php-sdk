@@ -45,7 +45,8 @@ class Key extends TTLockAbstract
 				'startDate'        => $startDate,
 				'endDate'          => $endDate,
 				'date'             => $this->getMillisecond(),
-				'remoteEnable'     => 2,
+				'remoteEnable'     => 1,
+				'keyRight'         => 1,
 			],
 		] );
 		$body     = json_decode( $response->getBody()->getContents(), true );
